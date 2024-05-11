@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pro_chat/authentication/login.dart';
 import 'package:pro_chat/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,14 +12,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(const Duration(seconds: 2), ()=> Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const HomeScreen())));
+    Timer(
+        const Duration(seconds: 2),
+        () => Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginScreen())));
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -43,7 +46,8 @@ class _SplashScreenState extends State<SplashScreen> {
                     children: const <TextSpan>[
                       TextSpan(
                           text: "Md. Mehedi Hasan",
-                          style: TextStyle(color: Colors.deepPurpleAccent, fontSize: 22))
+                          style: TextStyle(
+                              color: Colors.deepPurpleAccent, fontSize: 22))
                     ]),
               ),
             ],
