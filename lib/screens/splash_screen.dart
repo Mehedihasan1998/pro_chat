@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pro_chat/api/apis.dart';
 import 'package:pro_chat/authentication/login.dart';
 import 'package:pro_chat/screens/home_screen.dart';
 
@@ -18,8 +19,16 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(
         const Duration(seconds: 2),
-        () => Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginScreen())));
+        (){
+          if(APIs.auth.currentUser != null){
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()));
+          }
+          else{
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()));
+          }
+        });
   }
 
   @override

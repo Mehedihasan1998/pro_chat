@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pro_chat/api/apis.dart';
 import 'package:pro_chat/screens/home_screen.dart';
+import 'package:pro_chat/widgets/dialogs.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,39 +16,57 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-  _googleSignIn(){
-
-    signInWithGoogle().then((user) {
-      print("\nUser: ${user.user}");
-      print("\nUserAdditionalInfo: ${user.additionalUserInfo}");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const HomeScreen()));
+  _googleSignIn() {
+    Dialogs.showProgressBar(context);
+    _signInWithGoogle().then((user) {
+      Navigator.pop(context);
+      if (user != null) {
+        print("\nUser: ${user.user}");
+        print("\nUserAdditionalInfo: ${user.additionalUserInfo}");
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
+      }
     });
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  Future<UserCredential?> _signInWithGoogle() async {
+    try {
+      await InternetAddress.lookup('google.com');
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
 
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+      // Once signed in, return the UserCredential
+      return await APIs.auth.signInWithCredential(credential);
+    } catch (e) {
+      print("Error: $e");
+      Dialogs.showSnackbar(context, "Check the internet and try again");
+      return null;
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Pro Chat"),
+          title: const Text(
+            "Pro Chat",
+            style: TextStyle(
+              color: Colors.purple,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           centerTitle: true,
           elevation: 1,
         ),
@@ -75,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Image.asset(
                       "assets/images/google.png",
-                      height: size.height * .05,
+                      height: size.height * .04,
                       width: size.width * .1,
                     ),
                     SizedBox(
@@ -86,14 +107,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: "Login with ",
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 22,
+                            fontSize: 20,
                             fontWeight: FontWeight.w500),
                         children: const <TextSpan>[
                           TextSpan(
                             text: "Google",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 22,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold),
                           )
                         ],
