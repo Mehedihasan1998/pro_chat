@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pro_chat/model/message_model.dart';
 import 'package:pro_chat/model/user_model.dart';
 
 class APIs {
@@ -79,7 +80,9 @@ class APIs {
     final reference = storage.ref().child('profile_picture/${user.uid}.$ext');
 
     // Upload image
-    await reference.putFile(file, SettableMetadata(contentType: 'image/$ext')).then((p0) {
+    await reference
+        .putFile(file, SettableMetadata(contentType: 'image/$ext'))
+        .then((p0) {
       print("Image size: ${p0.bytesTransferred / 1000} kb");
     });
 
@@ -90,4 +93,34 @@ class APIs {
     });
   }
 
+  /// ********************Chat messages***********************
+
+  // Get the conversation ID
+  static String getConversationId(String id) => user.uid.hashCode <= id.hashCode
+      ? '${user.uid}_$id'
+      : '${id}_${user.uid}';
+
+  // Get all the text of specific conversion
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllText(
+      UserModel user) {
+    return fireStore
+        .collection('chats/${getConversationId(user.id)}/messages/')
+        .snapshots();
+  }
+
+  // Send text
+  static Future<void> sendText(UserModel chatUser, String msg) async {
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final MessageModel message = MessageModel(
+        toId: chatUser.id,
+        msg: msg,
+        read: '',
+        type: Type.text,
+        fromId: user.uid,
+        sent: time);
+
+    final ref = fireStore.collection('chats/${getConversationId(chatUser.id)}/messages/');
+    await ref.doc(time).set(message.toJson());
+  }
 }

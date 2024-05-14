@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pro_chat/model/user_model.dart';
+import 'package:pro_chat/screens/chat_screen.dart';
 
 class CustomCard extends StatefulWidget {
   final UserModel user;
@@ -17,7 +18,9 @@ class _CustomCardState extends State<CustomCard> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_)=> ChatScreen(user: widget.user,)));
+      },
       child: Card(
         margin:
             EdgeInsets.symmetric(horizontal: size.width * 0.03, vertical: 4),
@@ -28,7 +31,7 @@ class _CustomCardState extends State<CustomCard> {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(size.height*0.3),
             child: CachedNetworkImage(
-              
+              fit: BoxFit.cover,
               height: size.height * 0.055,
               width: size.height * 0.055,
               imageUrl: widget.user.image,
