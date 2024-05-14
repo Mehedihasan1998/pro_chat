@@ -120,7 +120,25 @@ class APIs {
         fromId: user.uid,
         sent: time);
 
-    final ref = fireStore.collection('chats/${getConversationId(chatUser.id)}/messages/');
+    final ref = fireStore
+        .collection('chats/${getConversationId(chatUser.id)}/messages/');
     await ref.doc(time).set(message.toJson());
+  }
+
+  // Update read status
+  static Future<void> updateMessageReadStatus(MessageModel message) async {
+    fireStore
+        .collection('chats/${getConversationId(message.fromId)}/messages/')
+        .doc(message.sent)
+        .update({"read": DateTime.now().millisecondsSinceEpoch.toString()});
+  }
+
+  // Last message
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastText(
+      UserModel user) {
+    return fireStore
+        .collection('chats/${getConversationId(user.id)}/messages/')
+        .limit(1)
+        .snapshots();
   }
 }
