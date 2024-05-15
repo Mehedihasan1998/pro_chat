@@ -138,6 +138,7 @@ class APIs {
       UserModel user) {
     return fireStore
         .collection('chats/${getConversationId(user.id)}/messages/')
+        .orderBy('sent', descending: true)
         .limit(1)
         .snapshots();
   }
