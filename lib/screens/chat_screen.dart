@@ -1,6 +1,7 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -23,11 +24,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final _textController = TextEditingController();
 
+  bool _showEmoji = false;
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -119,10 +120,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       case ConnectionState.active:
                       case ConnectionState.done:
                         final data = snapshot.data!.docs;
-                        _list =
-                            data.map((e) => MessageModel.fromJson(e.data())).toList();
+                        _list = data
+                            .map((e) => MessageModel.fromJson(e.data()))
+                            .toList();
                         // final _list = [];
-
 
                         if (_list.isNotEmpty) {
                           return ListView.builder(
@@ -133,22 +134,45 @@ class _ChatScreenState extends State<ChatScreen> {
                               // return CustomCard(
                               //   user: _isSearching ? _searchList[index] : _list[index],
                               // );
-                              return CustomMessageCard(message: _list[index],);
+                              return CustomMessageCard(
+                                message: _list[index],
+                              );
                             },
                           );
                         } else {
                           return const Center(
                               child: Text(
-                                "Say Hi! 👋",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ));
+                            "Say Hi! 👋",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ));
                         }
                     }
                   },
-                ),),
+                ),
+              ),
               _chatInputField(),
+              if (_showEmoji)
+                EmojiPicker(
+                  textEditingController: _textController,
+                  config: Config(
+                    height: 256,
+                    checkPlatformCompatibility: true,
+                    emojiViewConfig: EmojiViewConfig(
+                      // Issue: https://github.com/flutter/flutter/issues/28894
+                      emojiSizeMax: 28 *
+                          (foundation.defaultTargetPlatform == TargetPlatform.iOS
+                              ?  1.20
+                              :  1.0),
+                    ),
+                    swapCategoryAndBottomBar:  false,
+                    skinToneConfig: const SkinToneConfig(),
+                    categoryViewConfig: const CategoryViewConfig(),
+                    bottomActionBarConfig: const BottomActionBarConfig(),
+                    searchViewConfig: const SearchViewConfig(),
+                  ),
+                ),
             ],
           ),
         ),
@@ -159,14 +183,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _chatInputField() {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: MediaQuery
-            .of(context)
-            .size
-            .height * 0.01,
-        horizontal: MediaQuery
-            .of(context)
-            .size
-            .width * 0.025,
+        vertical: MediaQuery.of(context).size.height * 0.01,
+        horizontal: MediaQuery.of(context).size.width * 0.025,
       ),
       child: Row(
         children: [
@@ -178,7 +196,12 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        FocusScope.of(context).unfocus();
+                        _showEmoji = !_showEmoji;
+                      });
+                    },
                     icon: Icon(
                       Icons.emoji_emotions,
                       color: Colors.purple,
@@ -186,6 +209,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   Expanded(
                     child: TextField(
+                      onTap: (){
+                        if(_showEmoji){
+                          setState(() {
+                            _showEmoji = !_showEmoji;
+                          });
+                        }
+                      },
                       controller: _textController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
@@ -216,7 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           MaterialButton(
             onPressed: () {
-              if(_textController.text.isNotEmpty){
+              if (_textController.text.isNotEmpty) {
                 APIs.sendText(widget.user, _textController.text);
                 _textController.text = '';
               }
