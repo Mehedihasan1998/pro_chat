@@ -110,14 +110,14 @@ class APIs {
   }
 
   // Send text
-  static Future<void> sendText(UserModel chatUser, String msg) async {
+  static Future<void> sendText(UserModel chatUser, String msg, Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     final MessageModel message = MessageModel(
         toId: chatUser.id,
         msg: msg,
         read: '',
-        type: Type.text,
+        type: type,
         fromId: user.uid,
         sent: time);
 
@@ -156,5 +156,25 @@ class APIs {
       return "${Jiffy.parse("${DateTime.fromMillisecondsSinceEpoch(int.parse(message!.sent))}").format(pattern: "hh:mm a")}";
     }
     return "${Jiffy.parse("${DateTime.fromMillisecondsSinceEpoch(int.parse(message!.sent))}").format(pattern: "MMM d")}";
+  }
+
+  // Chat image sending
+  static Future<void> sendChatImage(UserModel chatUser, File file) async {
+    final ext = file.path.split('.').last;
+
+    // storage file reference with the path
+    final reference = storage.ref().child(
+        'images/${getConversationId(chatUser.id)}/${DateTime.now().millisecondsSinceEpoch}.$ext');
+
+    // Upload image
+    await reference
+        .putFile(file, SettableMetadata(contentType: 'image/$ext'))
+        .then((p0) {
+      print("Image size: ${p0.bytesTransferred / 1000} kb");
+    });
+
+    // Update image in firestore database
+    final imageUrl = await reference.getDownloadURL();
+    await sendText(chatUser, imageUrl, Type.image);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:pro_chat/api/apis.dart';
@@ -41,11 +42,24 @@ class _CustomMessageCardState extends State<CustomMessageCard> {
                 bottomRight: Radius.circular(15),
               ),
             ),
-            child: Text(
+            child: widget.message.type == Type.text ?
+            Text(
               widget.message.msg,
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.black,
+              ),
+            ) : ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: widget.message.msg,
+                placeholder: (context, url){
+                  return CircularProgressIndicator(strokeWidth: 2,);
+                },
+                errorWidget: (context, url, error) {
+                  return Icon(Icons.image, size: 70,);
+                },
               ),
             ),
           ),
@@ -102,11 +116,25 @@ class _CustomMessageCardState extends State<CustomMessageCard> {
                 bottomLeft: Radius.circular(15),
               ),
             ),
-            child: Text(
+            child:
+            widget.message.type == Type.text ?
+            Text(
               widget.message.msg,
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.black,
+              ),
+            ) : ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: widget.message.msg,
+                placeholder: (context, url){
+                  return CircularProgressIndicator(strokeWidth: 2,);
+                },
+                errorWidget: (context, url, error) {
+                  return Icon(Icons.image, size: 70,);
+                },
               ),
             ),
           ),
