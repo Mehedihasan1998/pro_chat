@@ -88,9 +88,7 @@ class _CustomCardState extends State<CustomCard> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           )
-                        : Text(
-                            "${Jiffy.parse("${DateTime.fromMillisecondsSinceEpoch(int.parse(message!.sent))}").format(pattern: "hh:mm a")}",
-                            style:
+                        : Text(APIs.getLastTextTime(message!),style:
                                 TextStyle(fontSize: 13, color: Colors.black54),
                           ),
               );

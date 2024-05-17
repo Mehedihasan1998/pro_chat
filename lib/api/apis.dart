@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:pro_chat/model/message_model.dart';
 import 'package:pro_chat/model/user_model.dart';
 
@@ -141,5 +142,19 @@ class APIs {
         .orderBy('sent', descending: true)
         .limit(1)
         .snapshots();
+  }
+
+  // Last message time
+  static String getLastTextTime(MessageModel message) {
+    final DateTime currentTime = DateTime.now();
+    final DateTime textTime =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(message.sent));
+
+    if (currentTime.day == textTime.day &&
+        currentTime.month == textTime.month &&
+        currentTime.year == textTime.year) {
+      return "${Jiffy.parse("${DateTime.fromMillisecondsSinceEpoch(int.parse(message!.sent))}").format(pattern: "hh:mm a")}";
+    }
+    return "${Jiffy.parse("${DateTime.fromMillisecondsSinceEpoch(int.parse(message!.sent))}").format(pattern: "MMM d")}";
   }
 }
